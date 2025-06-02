@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PFP & Wallpaper Gallery</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.2rem;
+        }
+
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            padding: 2rem;
+        }
+
+        .tab-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 2px solid transparent;
+        }
+
+        .tab-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+
+        .tab-btn.active {
+            background: white;
+            color: #667eea;
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .gallery-section {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .gallery-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-title {
+            text-align: center;
+            color: white;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .upload-area {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: 3rem;
+            text-align: center;
+            margin-bottom: 3rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .upload-area:hover {
+            border-color: rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .upload-area input[type="file"] {
+            display: none;
+        }
+
+        .upload-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .upload-text {
+            color: white;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+
+        .gallery {
+            display: grid;
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .pfp-gallery {
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        }
+
+        .wallpaper-gallery {
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        }
+
+        .image-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .image-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .image-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .wallpaper-gallery .image-card img {
+            height: 180px;
+        }
+
+        .image-card:hover img {
+            transform: scale(1.05);
+        }
+
+        .image-actions {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .image-card:hover .image-actions {
+            opacity: 1;
+        }
+
+        .action-btn {
+            background: rgba(0,0,0,0.7);
+            color: white;
+            border: none;
+            padding: 0.5rem;
+            border-radius: 50%;
+            margin-left: 0.5rem;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: rgba(0,0,0,0.9);
+            transform: scale(1.1);
+        }
+
+        .image-info {
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .image-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .image-size {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.2rem;
+            padding: 3rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem 2rem;
+            border-radius: 15px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .nav-tabs {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .stats {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .pfp-gallery {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+            
+            .wallpaper-gallery {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎨 PFP & Wallpaper Gallery</h1>
+        <p>Коллекция аватарок и обоев для рабочего стола</p>
+    </div>
+
+    <div class="nav-tabs">
+        <button class="tab-btn active" onclick="showTab('pfp')">
+            👤 Profile Pictures
+        </button>
+        <button class="tab-btn" onclick="showTab('wallpapers')">
+            🖼️ Wallpapers
+        </button>
+    </div>
+
+    <div class="container">
+        <!-- PFP Section -->
+        <div id="pfp-section" class="gallery-section active">
+            <h2 class="section-title">Profile Pictures</h2>
+            
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-number" id="pfp-count">0</div>
+                    <div class="stat-label">Аватарок</div>
+                </div>
+            </div>
+
+            <div class="upload-area" onclick="document.getElementById('pfp-upload').click()">
+                <div class="upload-text">📱 Загрузить новые аватарки</div>
+                <button class="upload-btn">Выбрать файлы</button>
+                <input type="file" id="pfp-upload" multiple accept="image/*">
+            </div>
+
+            <div id="pfp-gallery" class="gallery pfp-gallery">
+                <div class="empty-state">
+                    <p>Пока что здесь пусто. Загрузите свои первые аватарки!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Wallpapers Section -->
+        <div id="wallpapers-section" class="gallery-section">
+            <h2 class="section-title">Desktop Wallpapers</h2>
+            
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-number" id="wallpaper-count">0</div>
+                    <div class="stat-label">Обоев</div>
+                </div>
+            </div>
+
+            <div class="upload-area" onclick="document.getElementById('wallpaper-upload').click()">
+                <div class="upload-text">🖥️ Загрузить новые обои</div>
+                <button class="upload-btn">Выбрать файлы</button>
+                <input type="file" id="wallpaper-upload" multiple accept="image/*">
+            </div>
+
+            <div id="wallpaper-gallery" class="gallery wallpaper-gallery">
+                <div class="empty-state">
+                    <p>Пока что здесь пусто. Загрузите свои первые обои!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Storage for images
+        let pfpImages = [];
+        let wallpaperImages = [];
+
+        // Tab switching
+        function showTab(tab) {
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Show/hide sections
+            document.querySelectorAll('.gallery-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(tab + '-section').classList.add('active');
+        }
+
+        // File upload handlers
+        document.getElementById('pfp-upload').addEventListener('change', function(e) {
+            handleFileUpload(e.target.files, 'pfp');
+        });
+
+        document.getElementById('wallpaper-upload').addEventListener('change', function(e) {
+            handleFileUpload(e.target.files, 'wallpaper');
+        });
+
+        function handleFileUpload(files, type) {
+            Array.from(files).forEach(file => {
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const imageData = {
+                            id: Date.now() + Math.random(),
+                            name: file.name,
+                            size: formatFileSize(file.size),
+                            src: e.target.result,
+                            type: file.type
+                        };
+
+                        if (type === 'pfp') {
+                            pfpImages.push(imageData);
+                            renderPFPGallery();
+                        } else {
+                            wallpaperImages.push(imageData);
+                            renderWallpaperGallery();
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function renderPFPGallery() {
+            const gallery = document.getElementById('pfp-gallery');
+            const count = document.getElementById('pfp-count');
+            
+            count.textContent = pfpImages.length;
+
+            if (pfpImages.length === 0) {
+                gallery.innerHTML = '<div class="empty-state"><p>Пока что здесь пусто. Загрузите свои первые аватарки!</p></div>';
+                return;
+            }
+
+            gallery.innerHTML = pfpImages.map(img => `
+                <div class="image-card">
+                    <img src="${img.src}" alt="${img.name}">
+                    <div class="image-actions">
+                        <button class="action-btn" onclick="downloadImage('${img.src}', '${img.name}')" title="Скачать">💾</button>
+                        <button class="action-btn" onclick="deleteImage('${img.id}', 'pfp')" title="Удалить">🗑️</button>
+                    </div>
+                    <div class="image-info">
+                        <div class="image-name">${img.name}</div>
+                        <div class="image-size">${img.size}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderWallpaperGallery() {
+            const gallery = document.getElementById('wallpaper-gallery');
+            const count = document.getElementById('wallpaper-count');
+            
+            count.textContent = wallpaperImages.length;
+
+            if (wallpaperImages.length === 0) {
+                gallery.innerHTML = '<div class="empty-state"><p>Пока что здесь пусто. Загрузите свои первые обои!</p></div>';
+                return;
+            }
+
+            gallery.innerHTML = wallpaperImages.map(img => `
+                <div class="image-card">
+                    <img src="${img.src}" alt="${img.name}">
+                    <div class="image-actions">
+                        <button class="action-btn" onclick="downloadImage('${img.src}', '${img.name}')" title="Скачать">💾</button>
+                        <button class="action-btn" onclick="deleteImage('${img.id}', 'wallpaper')" title="Удалить">🗑️</button>
+                    </div>
+                    <div class="image-info">
+                        <div class="image-name">${img.name}</div>
+                        <div class="image-size">${img.size}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function downloadImage(src, name) {
+            const link = document.createElement('a');
+            link.download = name;
+            link.href = src;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function deleteImage(id, type) {
+            if (confirm('Вы уверены, что хотите удалить это изображение?')) {
+                if (type === 'pfp') {
+                    pfpImages = pfpImages.filter(img => img.id !== id);
+                    renderPFPGallery();
+                } else {
+                    wallpaperImages = wallpaperImages.filter(img => img.id !== id);
+                    renderWallpaperGallery();
+                }
+            }
+        }
+
+        // Drag and drop functionality
+        ['pfp-section', 'wallpapers-section'].forEach(sectionId => {
+            const section = document.getElementById(sectionId);
+            const type = sectionId.includes('pfp') ? 'pfp' : 'wallpaper';
+            
+            section.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                section.style.opacity = '0.8';
+            });
+            
+            section.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                section.style.opacity = '1';
+            });
+            
+            section.addEventListener('drop', (e) => {
+                e.preventDefault();
+                section.style.opacity = '1';
+                handleFileUpload(e.dataTransfer.files, type);
+            });
+        });
+
+        // Initialize galleries
+        renderPFPGallery();
+        renderWallpaperGallery();
+    </script>
+</body>
+</html>
