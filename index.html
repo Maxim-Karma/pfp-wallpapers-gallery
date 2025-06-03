@@ -35,7 +35,6 @@
             font-weight: 700;
             color: white;
             margin-bottom: 10px;
-            text-shadow: 0 4px 8px rgba(0,0,0,0.3);
         }
 
         .header p {
@@ -229,17 +228,26 @@
         }
 
         .modal-content {
-            max-width: 90%;
-            max-height: 90%;
+            max-width: 85%;
+            max-height: 85%;
             position: relative;
             animation: scaleIn 0.3s ease-out;
         }
 
         .modal img, .modal video {
             max-width: 100%;
-            max-height: 100%;
+            max-height: 80vh;
+            width: auto;
+            height: auto;
             border-radius: 15px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            object-fit: contain;
+        }
+
+        /* Специальные ограничения для широких изображений (обоев) */
+        .modal img[src*="wallpaper"], .modal video[src*="wallpaper"] {
+            max-height: 70vh;
+            max-width: 80vw;
         }
 
         .modal video {
@@ -545,10 +553,21 @@
         const modalVideo = document.getElementById('modal-video');
         const loadingOverlay = document.getElementById('loading-overlay');
         const modalInfo = document.getElementById('modal-info');
+        const modalContent = modal.querySelector('.modal-content');
         
         const mediaType = getMediaType(mediaPath);
+        const isWallpaper = mediaPath.includes('wallpaper');
         
         modal.classList.add('active');
+        
+        // Применяем разные стили для обоев и PFP
+        if (isWallpaper) {
+            modalContent.style.maxWidth = '80vw';
+            modalContent.style.maxHeight = '70vh';
+        } else {
+            modalContent.style.maxWidth = '85%';
+            modalContent.style.maxHeight = '85%';
+        }
         
         // Сброс перед открытием
         loadingOverlay.style.display = 'flex';
@@ -563,6 +582,7 @@
             modalVideo.onloadeddata = function() {
                 loadingOverlay.style.display = 'none';
                 modalVideo.style.display = 'block';
+                modalVideo.style.objectFit = 'contain';
                 modalInfo.style.display = 'block';
                 modalInfo.textContent = 'Source quality • Video';
                 modalInfo.style.cursor = 'pointer';
@@ -581,6 +601,7 @@
             modalImage.onload = function() {
                 loadingOverlay.style.display = 'none';
                 modalImage.style.display = 'block';
+                modalImage.style.objectFit = 'contain';
                 modalInfo.style.display = 'block';
                 modalInfo.textContent = mediaType === 'gif' ? 
                     'Source quality • GIF' : 
