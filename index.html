@@ -77,11 +77,29 @@
             box-shadow: 0 8px 25px rgba(255,107,107,0.4);
         }
 
+        /* Pinterest-style Masonry Layout */
         .gallery {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 25px;
+            column-count: 4;
+            column-gap: 20px;
             animation: fadeIn 0.8s ease-out 0.4s both;
+        }
+
+        @media (max-width: 1200px) {
+            .gallery {
+                column-count: 3;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .gallery {
+                column-count: 2;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .gallery {
+                column-count: 1;
+            }
         }
 
         .image-card {
@@ -93,22 +111,53 @@
             border: 1px solid rgba(255,255,255,0.2);
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             cursor: pointer;
+            margin-bottom: 20px;
+            break-inside: avoid;
+            page-break-inside: avoid;
+            display: inline-block;
+            width: 100%;
         }
 
         .image-card:hover {
-            transform: translateY(-10px) scale(1.02);
+            transform: translateY(-5px) scale(1.02);
             box-shadow: 0 20px 40px rgba(0,0,0,0.3);
         }
 
         .image-card img, .image-card video {
             width: 100%;
-            height: 200px;
-            object-fit: cover;
+            height: auto;
+            display: block;
             transition: transform 0.4s ease;
         }
 
         .image-card:hover img, .image-card:hover video {
-            transform: scale(1.1);
+            transform: scale(1.05);
+        }
+
+        /* Различные высоты для Pinterest эффекта */
+        .image-card:nth-child(3n+1) img, .image-card:nth-child(3n+1) video {
+            min-height: 250px;
+            object-fit: cover;
+        }
+
+        .image-card:nth-child(3n+2) img, .image-card:nth-child(3n+2) video {
+            min-height: 300px;
+            object-fit: cover;
+        }
+
+        .image-card:nth-child(3n+3) img, .image-card:nth-child(3n+3) video {
+            min-height: 200px;
+            object-fit: cover;
+        }
+
+        .image-card:nth-child(7n+1) img, .image-card:nth-child(7n+1) video {
+            min-height: 350px;
+            object-fit: cover;
+        }
+
+        .image-card:nth-child(5n+2) img, .image-card:nth-child(5n+2) video {
+            min-height: 180px;
+            object-fit: cover;
         }
 
         .media-type-indicator {
@@ -123,6 +172,7 @@
             font-weight: 600;
             text-transform: uppercase;
             backdrop-filter: blur(5px);
+            z-index: 2;
         }
 
         .gif-indicator {
@@ -208,10 +258,10 @@
             font-size: 0.9rem;
             backdrop-filter: blur(10px);
             white-space: nowrap;
-            transition: opacity 0.3s ease; /* Добавлено для плавности */
+            transition: opacity 0.3s ease;
         }
 
-        .modal-info:hover { /* Добавлен стиль для наведения */
+        .modal-info:hover {
             opacity: 0.8;
             text-decoration: underline;
         }
@@ -272,6 +322,7 @@
             color: rgba(255,255,255,0.8);
             font-size: 1.2rem;
             margin-top: 60px;
+            column-span: all;
         }
 
         .empty-state i {
@@ -328,14 +379,17 @@
                 align-items: center;
             }
 
-            .gallery {
-                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-                gap: 15px;
-            }
-
             .modal-close {
                 top: 10px;
                 right: 10px;
+            }
+
+            .gallery {
+                column-gap: 15px;
+            }
+
+            .image-card {
+                margin-bottom: 15px;
             }
         }
     </style>
@@ -345,8 +399,8 @@
     <div class="header">
         <h1>🖼️ Gallery</h1>
         <p>✰Collection of pfps and wallpapers✰</p>
-        <p>By: <a href="https://github.com/Maxim-Karma" style="color: #efbaff;">Maxim-Karma</a></p> </div>
-</div>
+        <p>By: <a href="https://github.com/Maxim-Karma" style="color: #efbaff;">Maxim-Karma</a></p>
+    </div>
 
     <div class="category-buttons">
         <button class="category-btn active" data-category="pfp">
@@ -358,7 +412,7 @@
     </div>
 
     <div class="gallery" id="gallery">
-        </div>
+    </div>
 </div>
 
 <div class="modal" id="modal">
@@ -371,13 +425,13 @@
         <img id="modal-image" src="" alt="" style="display: none;">
         <video id="modal-video" controls style="display: none;"></video>
         <div class="modal-info" id="modal-info">
-            Source quiality
+            Source quality
         </div>
     </div>
 </div>
 
 <script>
-    //  пути вашим изображениям
+    // Пути к вашим изображениям
     const images = {
         pfp: [
             { path: 'pfp/Aglaea1.jpg', name: 'Aglaea' },
@@ -412,7 +466,7 @@
         if (gifExtensions.includes(extension)) return 'gif';
         if (videoExtensions.includes(extension)) return 'video';
         
-        return 'image'; // По умолчанию считаем изображением
+        return 'image';
     }
 
     // Функция для создания медиа элемента
@@ -455,7 +509,7 @@
         const gallery = document.getElementById('gallery');
         const categoryImages = images[category];
 
-        if (!categoryImages || categoryImages.length === 0) { // Добавлена проверка на существование categoryImages
+        if (!categoryImages || categoryImages.length === 0) {
             gallery.innerHTML = `
                 <div class="empty-state">
                     <i>📁</i>
@@ -498,12 +552,12 @@
         
         // Сброс перед открытием
         loadingOverlay.style.display = 'flex';
-        loadingOverlay.innerHTML = `<div class="spinner"></div> Load...`; // Восстанавливаем спиннер
+        loadingOverlay.innerHTML = `<div class="spinner"></div> Load...`;
         modalImage.style.display = 'none';
         modalVideo.style.display = 'none';
         modalInfo.style.display = 'none';
-        modalInfo.onclick = null; // Очищаем предыдущий обработчик
-        modalInfo.style.cursor = 'default'; // Сбрасываем курсор
+        modalInfo.onclick = null;
+        modalInfo.style.cursor = 'default';
 
         if (mediaType === 'video') {
             modalVideo.onloadeddata = function() {
@@ -563,17 +617,16 @@
         setTimeout(() => {
             modalImage.src = '';
             modalVideo.src = '';
-            if (modalVideo.pause) { // Проверка на существование метода pause
-                 modalVideo.pause();
+            if (modalVideo.pause) {
+                modalVideo.pause();
             }
-            // Сброс loadingOverlay, если там было сообщение об ошибке
             if (loadingOverlay.innerHTML.includes('Unable to load')) {
-                 loadingOverlay.innerHTML = `
+                loadingOverlay.innerHTML = `
                     <div class="spinner"></div>
                     Load...
                 `;
             }
-        }, 300); // Задержка для завершения анимации закрытия
+        }, 300);
     }
 
     document.querySelectorAll('.category-btn').forEach(btn => {
