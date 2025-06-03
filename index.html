@@ -101,31 +101,53 @@
             box-shadow: 0 20px 40px rgba(0,0,0,0.3);
         }
 
-        .image-card img {
+        .image-card img, .image-card video {
             width: 100%;
             height: 200px;
             object-fit: cover;
-            transition: transform 0.4s ease;
-        }
-
-        .image-card:hover img {
-            transform: scale(1.1);
-        }
-
-        .image-overlay {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(transparent, rgba(0,0,0,0.8));
-            color: white;
-            padding: 20px;
-            transform: translateY(100%);
             transition: transform 0.3s ease;
         }
 
-        .image-card:hover .image-overlay {
-            transform: translateY(0);
+        .wallpaper-gallery .image-card img {
+            height: 180px;
+        }
+
+        .image-card:hover img {
+            transform: scale(1.05);
+        }
+
+        .image-actions {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .image-card:hover .image-actions {
+            opacity: 1;
+        }
+
+        .action-btn {
+            background: rgba(0,0,0,0.7);
+            color: white;
+            border: none;
+            padding: 0.5rem;
+            border-radius: 50%;
+            margin-left: 0.5rem;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: rgba(0,0,0,0.9);
+            transform: scale(1.1);
+        }
+
+        .image-info {
+            padding: 1rem;
+            text-align: center;
         }
 
         .image-name {
@@ -164,83 +186,23 @@
             animation: scaleIn 0.3s ease-out;
         }
 
-        .modal img {
-            max-width: 100%;
-            max-height: 100%;
+        .stat-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem 2rem;
             border-radius: 15px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-        }
-
-        .modal-close {
-            position: absolute;
-            top: -40px;
-            right: -40px;
-            background: rgba(255,255,255,0.2);
-            border: none;
-            color: white;
-            font-size: 24px;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-            backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
-        }
-
-        .modal-close:hover {
-            background: rgba(255,255,255,0.3);
-            transform: scale(1.1);
-        }
-
-        .empty-state {
             text-align: center;
-            color: rgba(255,255,255,0.8);
-            font-size: 1.2rem;
-            margin-top: 60px;
+            backdrop-filter: blur(10px);
         }
 
-        .empty-state i {
-            font-size: 4rem;
-            margin-bottom: 20px;
-            display: block;
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: white;
         }
 
-        @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes scaleIn {
-            from {
-                opacity: 0;
-                transform: scale(0.8);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
+        .stat-label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
         }
 
         @media (max-width: 768px) {
@@ -266,125 +228,229 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🖼️ Gallery</h1>
-            <p>Коллекция аватарок и обоев</p>
-        </div>
-
-        <div class="category-buttons">
-            <button class="category-btn active" data-category="pfp">
-                👤 PFP
-            </button>
-            <button class="category-btn" data-category="wallpaper">
-                🌅 Wallpapers
-            </button>
-        </div>
-
-        <div class="gallery" id="gallery">
-            <!-- Изображения  -->
-        </div>
+    <div class="header">
+        <h1>🎨 PFP & Wallpaper Gallery</h1>
+        <p>Коллекция аватарок и обоев для рабочего стола</p>
     </div>
 
-    <div class="modal" id="modal">
-        <div class="modal-content">
-            <button class="modal-close" onclick="closeModal()">&times;</button>
-            <img id="modal-image" src="" alt="">
+    <div class="nav-tabs">
+        <button class="tab-btn active" onclick="showTab('pfp')">
+            👤 Profile Pictures
+        </button>
+        <button class="tab-btn" onclick="showTab('wallpapers')">
+            🖼️ Wallpapers
+        </button>
+    </div>
+
+    <div class="container">
+        <!-- PFP Section -->
+        <div id="pfp-section" class="gallery-section active">
+            <h2 class="section-title">Profile Pictures</h2>
+            
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-number" id="pfp-count">0</div>
+                    <div class="stat-label">Аватарок</div>
+                </div>
+            </div>
+
+            <div class="upload-area" onclick="document.getElementById('pfp-upload').click()">
+                <div class="upload-text">📱 Загрузить новые аватарки</div>
+                <button class="upload-btn">Выбрать файлы</button>
+                <input type="file" id="pfp-upload" multiple accept="image/*">
+            </div>
+
+            <div id="pfp-gallery" class="gallery pfp-gallery">
+                <div class="empty-state">
+                    <p>Пока что здесь пусто. Загрузите свои первые аватарки!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Wallpapers Section -->
+        <div id="wallpapers-section" class="gallery-section">
+            <h2 class="section-title">Desktop Wallpapers</h2>
+            
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-number" id="wallpaper-count">0</div>
+                    <div class="stat-label">Обоев</div>
+                </div>
+            </div>
+
+            <div class="upload-area" onclick="document.getElementById('wallpaper-upload').click()">
+                <div class="upload-text">🖥️ Загрузить новые обои</div>
+                <button class="upload-btn">Выбрать файлы</button>
+                <input type="file" id="wallpaper-upload" multiple accept="image/*">
+            </div>
+
+            <div id="wallpaper-gallery" class="gallery wallpaper-gallery">
+                <div class="empty-state">
+                    <p>Пока что здесь пусто. Загрузите свои первые обои!</p>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        //  пути вашим изображениям
-        const images = {
-            pfp: [
-                { path: 'pfp/Aglaea1.jpg', name: 'Aglaea' },
-                { path: 'pfp/Raiden1.jpg', name: 'Raiden' },
-            ],
-            wallpaper: [
-                { path: 'wallpapers/SonomaHillsBlack.jpg', name: 'Sonoma Black' },
-                { path: 'wallpapers/SonomaHillsLight.jpg', name: 'Sonoma Light' },
-                { path: 'wallpapers/coffee-shop.png', name: 'Coffee Shop' },
-                { path: 'wallpapers/green-girl.png', name: 'Green' },
-            ]
-        };
+        // Storage for images
+        let pfpImages = [];
+        let wallpaperImages = [];
 
-        let currentCategory = 'pfp';
+        // Tab switching
+        function showTab(tab) {
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
 
-        function displayImages(category) {
-            const gallery = document.getElementById('gallery');
-            const categoryImages = images[category];
+            // Show/hide sections
+            document.querySelectorAll('.gallery-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(tab + '-section').classList.add('active');
+        }
 
-            if (categoryImages.length === 0) {
-                gallery.innerHTML = `
-                    <div class="empty-state">
-                        <i>📁</i>
-                        <p>Пока нет изображений в категории "${category === 'pfp' ? 'Profile Pictures' : 'Wallpapers'}"</p>
-                        <p style="font-size: 0.9rem; margin-top: 10px; opacity: 0.7;">
-                            Добавьте изображения в массив images.${category} в коде
-                        </p>
-                    </div>
-                `;
+        // File upload handlers
+        document.getElementById('pfp-upload').addEventListener('change', function(e) {
+            handleFileUpload(e.target.files, 'pfp');
+        });
+
+        document.getElementById('wallpaper-upload').addEventListener('change', function(e) {
+            handleFileUpload(e.target.files, 'wallpaper');
+        });
+
+        function handleFileUpload(files, type) {
+            Array.from(files).forEach(file => {
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const imageData = {
+                            id: Date.now() + Math.random(),
+                            name: file.name,
+                            size: formatFileSize(file.size),
+                            src: e.target.result,
+                            type: file.type
+                        };
+
+                        if (type === 'pfp') {
+                            pfpImages.push(imageData);
+                            renderPFPGallery();
+                        } else {
+                            wallpaperImages.push(imageData);
+                            renderWallpaperGallery();
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function renderPFPGallery() {
+            const gallery = document.getElementById('pfp-gallery');
+            const count = document.getElementById('pfp-count');
+            
+            count.textContent = pfpImages.length;
+
+            if (pfpImages.length === 0) {
+                gallery.innerHTML = '<div class="empty-state"><p>Пока что здесь пусто. Загрузите свои первые аватарки!</p></div>';
                 return;
             }
 
-            gallery.innerHTML = categoryImages.map((img, index) => `
-                <div class="image-card" onclick="openModal('${img.path}')">
-                    <img src="${img.path}" alt="${img.name}" onerror="this.parentElement.style.display='none'">
-                    <div class="image-overlay">
-                        <div class="image-name">${img.name || 'Изображение ' + (index + 1)}</div>
-                        <div class="image-size">Нажмите для увеличения</div>
+            gallery.innerHTML = pfpImages.map(img => `
+                <div class="image-card">
+                    <img src="${img.src}" alt="${img.name}">
+                    <div class="image-actions">
+                        <button class="action-btn" onclick="downloadImage('${img.src}', '${img.name}')" title="Скачать">💾</button>
+                        <button class="action-btn" onclick="deleteImage('${img.id}', 'pfp')" title="Удалить">🗑️</button>
+                    </div>
+                    <div class="image-info">
+                        <div class="image-name">${img.name}</div>
+                        <div class="image-size">${img.size}</div>
+                    </div>
+                `;
+            }
+        }
+
+        function renderWallpaperGallery() {
+            const gallery = document.getElementById('wallpaper-gallery');
+            const count = document.getElementById('wallpaper-count');
+            
+            count.textContent = wallpaperImages.length;
+
+            if (wallpaperImages.length === 0) {
+                gallery.innerHTML = '<div class="empty-state"><p>Пока что здесь пусто. Загрузите свои первые обои!</p></div>';
+                return;
+            }
+
+            gallery.innerHTML = wallpaperImages.map(img => `
+                <div class="image-card">
+                    <img src="${img.src}" alt="${img.name}">
+                    <div class="image-actions">
+                        <button class="action-btn" onclick="downloadImage('${img.src}', '${img.name}')" title="Скачать">💾</button>
+                        <button class="action-btn" onclick="deleteImage('${img.id}', 'wallpaper')" title="Удалить">🗑️</button>
+                    </div>
+                    <div class="image-info">
+                        <div class="image-name">${img.name}</div>
+                        <div class="image-size">${img.size}</div>
                     </div>
                 </div>
             `).join('');
         }
 
-        function switchCategory(category) {
-            currentCategory = category;
-            
-            //  активная кнопку
-            document.querySelectorAll('.category-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            document.querySelector(`[data-category="${category}"]`).classList.add('active');
-            
-            // Показать изображения
-            displayImages(category);
+        function downloadImage(src, name) {
+            const link = document.createElement('a');
+            link.download = name;
+            link.href = src;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
-        function openModal(imagePath) {
-            const modal = document.getElementById('modal');
-            const modalImage = document.getElementById('modal-image');
-            modalImage.src = imagePath;
-            modal.classList.add('active');
-        }
-
-        function closeModal() {
-            const modal = document.getElementById('modal');
-            modal.classList.remove('active');
-        }
-
-        
-        document.querySelectorAll('.category-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                switchCategory(e.target.dataset.category);
-            });
-        });
-
-        // Закрытие модального окна по клику вне изображения
-        document.getElementById('modal').addEventListener('click', (e) => {
-            if (e.target.id === 'modal') {
-                closeModal();
+        function deleteImage(id, type) {
+            if (confirm('Вы уверены, что хотите удалить это изображение?')) {
+                if (type === 'pfp') {
+                    pfpImages = pfpImages.filter(img => img.id !== id);
+                    renderPFPGallery();
+                } else {
+                    wallpaperImages = wallpaperImages.filter(img => img.id !== id);
+                    renderWallpaperGallery();
+                }
             }
+        }
+
+        // Drag and drop functionality
+        ['pfp-section', 'wallpapers-section'].forEach(sectionId => {
+            const section = document.getElementById(sectionId);
+            const type = sectionId.includes('pfp') ? 'pfp' : 'wallpaper';
+            
+            section.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                section.style.opacity = '0.8';
+            });
+            
+            section.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                section.style.opacity = '1';
+            });
+            
+            section.addEventListener('drop', (e) => {
+                e.preventDefault();
+                section.style.opacity = '1';
+                handleFileUpload(e.dataTransfer.files, type);
+            });
         });
 
-        // Закрытие модального окна по Escape
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                closeModal();
-            }
-        });
-
-        displayImages(currentCategory);
+        // Initialize galleries
+        renderPFPGallery();
+        renderWallpaperGallery();
     </script>
 </body>
 </html>
