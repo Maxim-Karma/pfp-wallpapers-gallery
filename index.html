@@ -209,6 +209,12 @@
             font-size: 0.9rem;
             backdrop-filter: blur(10px);
             white-space: nowrap;
+            transition: opacity 0.3s ease; /* Добавлено для плавности */
+        }
+
+        .modal-info:hover { /* Добавлен стиль для наведения */
+            opacity: 0.8;
+            text-decoration: underline;
         }
 
         .loading-overlay {
@@ -317,17 +323,17 @@
             .header h1 {
                 font-size: 2rem;
             }
-            
+
             .category-buttons {
                 flex-direction: column;
                 align-items: center;
             }
-            
+
             .gallery {
                 grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
                 gap: 15px;
             }
-            
+
             .modal-close {
                 top: 10px;
                 right: 10px;
@@ -337,241 +343,260 @@
 </head>
 <body>
 <div class="container">
-        <div class="header">
-            <h1>🖼️ Gallery</h1>
-            <p>✰Collection of pfps and wallpapers✰</p>
-            <p>By: <a href="https://github.com/Maxim-Karma">Maxim-Karma</a></p>
+    <div class="header">
+        <h1>🖼️ Gallery</h1>
+        <p>✰Collection of pfps and wallpapers✰</p>
+        <p>By: <a href="https://github.com/Maxim-Karma" style="color: #ffc0cb;">Maxim-Karma</a></p> </div>
+</div>
+
+    <div class="category-buttons">
+        <button class="category-btn active" data-category="pfp">
+            👤 PFP
+        </button>
+        <button class="category-btn" data-category="wallpaper">
+            🌅 Wallpapers
+        </button>
+    </div>
+
+    <div class="gallery" id="gallery">
         </div>
 </div>
 
-        <div class="category-buttons">
-            <button class="category-btn active" data-category="pfp">
-                👤 PFP
-            </button>
-            <button class="category-btn" data-category="wallpaper">
-                🌅 Wallpapers
-            </button>
+<div class="modal" id="modal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+        <div class="loading-overlay" id="loading-overlay">
+            <div class="spinner"></div>
+            Load...
         </div>
-
-        <div class="gallery" id="gallery">
-            <!-- Изображения будут загружаться здесь -->
-        </div>
-    </div>
-
-    <div class="modal" id="modal">
-        <div class="modal-content">
-            <button class="modal-close" onclick="closeModal()">&times;</button>
-            <div class="loading-overlay" id="loading-overlay">
-                <div class="spinner"></div>
-                Load...
-            </div>
-            <img id="modal-image" src="" alt="" style="display: none;">
-            <video id="modal-video" controls style="display: none;"></video>
-            <div class="modal-info" id="modal-info">
-                Source quiality
-            </div>
+        <img id="modal-image" src="" alt="" style="display: none;">
+        <video id="modal-video" controls style="display: none;"></video>
+        <div class="modal-info" id="modal-info">
+            Source quiality
         </div>
     </div>
+</div>
 
-    <script>
-        //  пути вашим изображениям
-        const images = {
-            pfp: [
-                { path: 'pfp/Aglaea1.jpg', name: 'Aglaea' },
-                { path: 'pfp/Raiden1.jpg', name: 'Raiden' },
-                { path: 'pfp/alrecchino1.jpg', name: 'Arlecchino' },
-                { path: 'pfp/collar-glasses1.gif', name: 'Collar Glasses 1' },
-                { path: 'pfp/collar-glasses2.jpg', name: 'Collar Glasses 2' },
-                { path: 'pfp/Lain1.jpg', name: 'Lain' },
-                { path: 'pfp/Lynette1.jpg', name: 'Lynette' },
-                { path: 'pfp/red-haired.jpg', name: 'Red-haired' },
-                { path: 'pfp/robin1.jpg', name: 'Robin 1' },
-                { path: 'pfp/robin2.jpg', name: 'Robin 2' },
-                { path: 'pfp/skirk1.jpg', name: 'Skirk' },
-            ],
-            wallpaper: [
-                { path: 'wallpapers/SonomaHillsBlack.jpg', name: 'Sonoma Black' },
-                { path: 'wallpapers/SonomaHillsLight.jpg', name: 'Sonoma Light' },
-                { path: 'wallpapers/coffee-shop.png', name: 'Coffee Shop' },
-                { path: 'wallpapers/green-girl.png', name: 'Green' },
-            ]
-        };
+<script>
+    //  пути вашим изображениям
+    const images = {
+        pfp: [
+            { path: 'pfp/Aglaea1.jpg', name: 'Aglaea' },
+            { path: 'pfp/Raiden1.jpg', name: 'Raiden' },
+            { path: 'pfp/alrecchino1.jpg', name: 'Arlecchino' },
+            { path: 'pfp/collar-glasses1.gif', name: 'Collar Glasses 1' },
+            { path: 'pfp/collar-glasses2.jpg', name: 'Collar Glasses 2' },
+            { path: 'pfp/Lain1.jpg', name: 'Lain' },
+            { path: 'pfp/Lynette1.jpg', name: 'Lynette' },
+            { path: 'pfp/red-haired.jpg', name: 'Red-haired' },
+            { path: 'pfp/robin1.jpg', name: 'Robin 1' },
+            { path: 'pfp/robin2.jpg', name: 'Robin 2' },
+            { path: 'pfp/skirk1.jpg', name: 'Skirk' },
+        ],
+        wallpaper: [
+            { path: 'wallpapers/SonomaHillsBlack.jpg', name: 'Sonoma Black' },
+            { path: 'wallpapers/SonomaHillsLight.jpg', name: 'Sonoma Light' },
+            { path: 'wallpapers/coffee-shop.png', name: 'Coffee Shop' },
+            { path: 'wallpapers/green-girl.png', name: 'Green' },
+        ]
+    };
 
-        // Функция для определения типа медиа по расширению файла
-        function getMediaType(path) {
-            const extension = path.toLowerCase().split('.').pop();
-            
-            const imageExtensions = ['jpg', 'jpeg', 'png', 'webp', 'bmp', 'svg'];
-            const gifExtensions = ['gif'];
-            const videoExtensions = ['mp4', 'webm', 'ogg', 'avi', 'mov', 'wmv', 'flv', 'mkv'];
-            
-            if (imageExtensions.includes(extension)) return 'image';
-            if (gifExtensions.includes(extension)) return 'gif';
-            if (videoExtensions.includes(extension)) return 'video';
-            
-            return 'image'; // По умолчанию считаем изображением
-        }
+    // Функция для определения типа медиа по расширению файла
+    function getMediaType(path) {
+        const extension = path.toLowerCase().split('.').pop();
+        
+        const imageExtensions = ['jpg', 'jpeg', 'png', 'webp', 'bmp', 'svg'];
+        const gifExtensions = ['gif'];
+        const videoExtensions = ['mp4', 'webm', 'ogg', 'avi', 'mov', 'wmv', 'flv', 'mkv'];
+        
+        if (imageExtensions.includes(extension)) return 'image';
+        if (gifExtensions.includes(extension)) return 'gif';
+        if (videoExtensions.includes(extension)) return 'video';
+        
+        return 'image'; // По умолчанию считаем изображением
+    }
 
-        // Функция для создания медиа элемента
-        function createMediaElement(mediaPath, mediaType, index, name) {
-            const typeIndicator = mediaType === 'gif' ? 
-                '<div class="media-type-indicator gif-indicator">GIF</div>' : 
-                mediaType === 'video' ? 
-                '<div class="media-type-indicator video-indicator">VIDEO</div>' : '';
+    // Функция для создания медиа элемента
+    function createMediaElement(mediaPath, mediaType, index, name) {
+        const typeIndicator = mediaType === 'gif' ? 
+            '<div class="media-type-indicator gif-indicator">GIF</div>' : 
+            mediaType === 'video' ? 
+            '<div class="media-type-indicator video-indicator">VIDEO</div>' : '';
 
-            if (mediaType === 'video') {
-                return `
-                    <div class="image-card" onclick="openModal('${mediaPath}')" data-original="${mediaPath}" data-type="${mediaType}">
-                        <video src="${mediaPath}" muted loop autoplay data-index="${index}" onerror="this.parentElement.style.display='none'">
-                            Ваш браузер не поддерживает видео.
-                        </video>
-                        ${typeIndicator}
-                        <div class="image-overlay">
-                            <div class="image-name">${name || 'Видео ' + (index + 1)}</div>
-                            <div class="image-size">Click for expansion.</div>
-                        </div>
+        if (mediaType === 'video') {
+            return `
+                <div class="image-card" onclick="openModal('${mediaPath}')" data-original="${mediaPath}" data-type="${mediaType}">
+                    <video src="${mediaPath}" muted loop autoplay playsinline data-index="${index}" onerror="this.parentElement.style.display='none'">
+                        Ваш браузер не поддерживает видео.
+                    </video>
+                    ${typeIndicator}
+                    <div class="image-overlay">
+                        <div class="image-name">${name || 'Видео ' + (index + 1)}</div>
+                        <div class="image-size">Click for expansion.</div>
                     </div>
-                `;
-            } else {
-                return `
-                    <div class="image-card" onclick="openModal('${mediaPath}')" data-original="${mediaPath}" data-type="${mediaType}">
-                        <img src="${mediaPath}" alt="${name}" data-index="${index}" onerror="this.parentElement.style.display='none'">
-                        ${typeIndicator}
-                        <div class="image-overlay">
-                            <div class="image-name">${name || 'Изображение ' + (index + 1)}</div>
-                            <div class="image-size">Click for expansion.</div>
-                        </div>
+                </div>
+            `;
+        } else {
+            return `
+                <div class="image-card" onclick="openModal('${mediaPath}')" data-original="${mediaPath}" data-type="${mediaType}">
+                    <img src="${mediaPath}" alt="${name || 'Изображение ' + (index + 1)}" data-index="${index}" onerror="this.parentElement.style.display='none'">
+                    ${typeIndicator}
+                    <div class="image-overlay">
+                        <div class="image-name">${name || 'Изображение ' + (index + 1)}</div>
+                        <div class="image-size">Click for expansion.</div>
                     </div>
-                `;
-            }
+                </div>
+            `;
+        }
+    }
+
+    let currentCategory = 'pfp';
+
+    async function displayImages(category) {
+        const gallery = document.getElementById('gallery');
+        const categoryImages = images[category];
+
+        if (!categoryImages || categoryImages.length === 0) { // Добавлена проверка на существование categoryImages
+            gallery.innerHTML = `
+                <div class="empty-state">
+                    <i>📁</i>
+                    <p>No images in category "${category === 'pfp' ? 'Profile Pictures' : 'Wallpapers'}"</p>
+                    <p style="font-size: 0.9rem; margin-top: 10px; opacity: 0.7;">
+                        Добавьте изображения в массив images.${category} в коде
+                    </p>
+                </div>
+            `;
+            return;
         }
 
-        let currentCategory = 'pfp';
+        gallery.innerHTML = categoryImages.map((media, index) => {
+            const mediaType = getMediaType(media.path);
+            return createMediaElement(media.path, mediaType, index, media.name);
+        }).join('');
+    }
 
-        async function displayImages(category) {
-            const gallery = document.getElementById('gallery');
-            const categoryImages = images[category];
-
-            if (categoryImages.length === 0) {
-                gallery.innerHTML = `
-                    <div class="empty-state">
-                        <i>📁</i>
-                        <p>No images "${category === 'pfp' ? 'Profile Pictures' : 'Wallpapers'}"</p>
-                        <p style="font-size: 0.9rem; margin-top: 10px; opacity: 0.7;">
-                            Добавьте изображения в массив images.${category} в коде
-                        </p>
-                    </div>
-                `;
-                return;
-            }
-
-            // Создаем карточки для разных типов медиа
-            gallery.innerHTML = categoryImages.map((media, index) => {
-                const mediaType = getMediaType(media.path);
-                return createMediaElement(media.path, mediaType, index, media.name);
-            }).join('');
-        }
-
-        function switchCategory(category) {
-            currentCategory = category;
-            
-            // Обновляем активную кнопку
-            document.querySelectorAll('.category-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            document.querySelector(`[data-category="${category}"]`).classList.add('active');
-            
-            // Показываем изображения
-            displayImages(category);
-        }
-
-        function openModal(mediaPath) {
-            const modal = document.getElementById('modal');
-            const modalImage = document.getElementById('modal-image');
-            const modalVideo = document.getElementById('modal-video');
-            const loadingOverlay = document.getElementById('loading-overlay');
-            const modalInfo = document.getElementById('modal-info');
-            
-           
-            const mediaType = getMediaType(mediaPath);
-            
-         
-            modal.classList.add('active');
-            loadingOverlay.style.display = 'flex';
-            modalImage.style.display = 'none';
-            modalVideo.style.display = 'none';
-            modalInfo.style.display = 'none';
-            
-            if (mediaType === 'video') {
-                // Для видео
-                modalVideo.onloadeddata = function() {
-                    loadingOverlay.style.display = 'none';
-                    modalVideo.style.display = 'block';
-                    modalInfo.style.display = 'block';
-                    modalInfo.textContent = 'Source quiality • Video';
-                };
-                
-                modalVideo.onerror = function() {
-                    loadingOverlay.innerHTML = '<div style="text-align: center;">❌<br>Unable to load video</div>';
-                };
-                
-                modalVideo.src = mediaPath;
-            } else {
-                // Для изображений и GIF
-                modalImage.onload = function() {
-                    loadingOverlay.style.display = 'none';
-                    modalImage.style.display = 'block';
-                    modalInfo.style.display = 'block';
-                    modalInfo.textContent = mediaType === 'gif' ? 
-                        'Source quiality  • GIF' : 
-                        'Source quiality';
-                };
-                
-                modalImage.onerror = function() {
-                    loadingOverlay.innerHTML = '<div style="text-align: center;">❌<br>Unable to load image</div>';
-                };
-                
-                modalImage.src = mediaPath;
-            }
-        }
-
-        function closeModal() {
-            const modal = document.getElementById('modal');
-            const modalImage = document.getElementById('modal-image');
-            const modalVideo = document.getElementById('modal-video');
-            modal.classList.remove('active');
-            
-            // Очищаем источники медиа для экономии памяти
-            setTimeout(() => {
-                modalImage.src = '';
-                modalVideo.src = '';
-                modalVideo.pause();
-            }, 300);
-        }
-
-        // Обработчики событий
+    function switchCategory(category) {
+        currentCategory = category;
+        
         document.querySelectorAll('.category-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                switchCategory(e.target.dataset.category);
-            });
+            btn.classList.remove('active');
         });
+        document.querySelector(`[data-category="${category}"]`).classList.add('active');
+        
+        displayImages(category);
+    }
 
-        // Закрытие модального окна по клику вне изображения
-        document.getElementById('modal').addEventListener('click', (e) => {
-            if (e.target.id === 'modal') {
-                closeModal();
+    function openModal(mediaPath) {
+        const modal = document.getElementById('modal');
+        const modalImage = document.getElementById('modal-image');
+        const modalVideo = document.getElementById('modal-video');
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const modalInfo = document.getElementById('modal-info');
+        
+        const mediaType = getMediaType(mediaPath);
+        
+        modal.classList.add('active');
+        
+        // Сброс перед открытием
+        loadingOverlay.style.display = 'flex';
+        loadingOverlay.innerHTML = `<div class="spinner"></div> Load...`; // Восстанавливаем спиннер
+        modalImage.style.display = 'none';
+        modalVideo.style.display = 'none';
+        modalInfo.style.display = 'none';
+        modalInfo.onclick = null; // Очищаем предыдущий обработчик
+        modalInfo.style.cursor = 'default'; // Сбрасываем курсор
+
+        if (mediaType === 'video') {
+            modalVideo.onloadeddata = function() {
+                loadingOverlay.style.display = 'none';
+                modalVideo.style.display = 'block';
+                modalInfo.style.display = 'block';
+                modalInfo.textContent = 'Source quality • Video';
+                modalInfo.style.cursor = 'pointer';
+                modalInfo.onclick = () => {
+                    window.open(mediaPath, '_blank');
+                };
+            };
+            
+            modalVideo.onerror = function() {
+                loadingOverlay.innerHTML = '<div style="text-align: center;">❌<br>Unable to load video</div>';
+                modalInfo.style.display = 'none';
+            };
+            
+            modalVideo.src = mediaPath;
+        } else {
+            modalImage.onload = function() {
+                loadingOverlay.style.display = 'none';
+                modalImage.style.display = 'block';
+                modalInfo.style.display = 'block';
+                modalInfo.textContent = mediaType === 'gif' ? 
+                    'Source quality • GIF' : 
+                    'Source quality';
+                modalInfo.style.cursor = 'pointer';
+                modalInfo.onclick = () => {
+                    window.open(mediaPath, '_blank');
+                };
+            };
+            
+            modalImage.onerror = function() {
+                loadingOverlay.innerHTML = '<div style="text-align: center;">❌<br>Unable to load image</div>';
+                modalInfo.style.display = 'none';
+            };
+            
+            modalImage.src = mediaPath;
+        }
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('modal');
+        const modalImage = document.getElementById('modal-image');
+        const modalVideo = document.getElementById('modal-video');
+        const modalInfo = document.getElementById('modal-info');
+        const loadingOverlay = document.getElementById('loading-overlay');
+
+        modal.classList.remove('active');
+        
+        if (modalInfo) {
+            modalInfo.onclick = null;
+            modalInfo.style.cursor = 'default';
+        }
+        
+        setTimeout(() => {
+            modalImage.src = '';
+            modalVideo.src = '';
+            if (modalVideo.pause) { // Проверка на существование метода pause
+                 modalVideo.pause();
             }
-        });
-
-        // Закрытие модального окна по Escape
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                closeModal();
+            // Сброс loadingOverlay, если там было сообщение об ошибке
+            if (loadingOverlay.innerHTML.includes('Unable to load')) {
+                 loadingOverlay.innerHTML = `
+                    <div class="spinner"></div>
+                    Load...
+                `;
             }
-        });
+        }, 300); // Задержка для завершения анимации закрытия
+    }
 
-        // Инициализация
-        displayImages(currentCategory);
-    </script>
+    document.querySelectorAll('.category-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            switchCategory(e.target.dataset.category);
+        });
+    });
+
+    document.getElementById('modal').addEventListener('click', (e) => {
+        if (e.target.id === 'modal') {
+            closeModal();
+        }
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && document.getElementById('modal').classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    // Инициализация
+    displayImages(currentCategory);
+</script>
 </body>
 </html>
